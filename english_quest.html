@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Quest - Aprende Inglés de Forma Interactiva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                            dark: '#0f172a',
+                            card: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- MODAL DE MENSAJE / NOTIFICACIÓN -->
+    <div id="toast" class="fixed bottom-20 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 border border-slate-700 px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+        <div>
+            <h4 id="toast-title" class="font-bold text-sm">¡Buen trabajo!</h4>
+            <p id="toast-msg" class="text-xs text-slate-400">+20 XP añadidos a tu cuenta.</p>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE BIENVENIDA / DIAGNÓSTICO -->
+    <div id="welcome-screen" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4 overflow-y-auto">
+        <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="w-20 h-20 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 shadow-inner">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            
+            <h1 class="text-3xl font-extrabold tracking-tight mb-2">English <span class="text-indigo-400">Quest</span></h1>
+            <p class="text-slate-400 text-sm mb-6">Tu aventura interactiva para dominar el inglés paso a paso.</p>
+            
+            <!-- Selector de Modo de Ingreso -->
+            <div id="welcome-step-1" class="space-y-4">
+                <button onclick="startDiagnostic()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Realizar Test Diagnóstico
+                </button>
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-4 text-slate-500 text-xs uppercase tracking-wider">o selecciona tu nivel</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="setManualLevel('A1')" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left transition-all">
+                        <div class="font-bold text-indigo-400">A1 - Beginner</div>
+                        <div class="text-xs text-slate-400">Básico e inicial</div>
+                    </button>
+                    <button onclick="setManualLevel('A2')" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left transition-all">
+                        <div class="font-bold text-indigo-400">A2 - Elementary</div>
+                        <div class="text-xs text-slate-400">Rutinas y pasado</div>
+                    </button>
+                    <button onclick="setManualLevel('B1')" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left transition-all">
+                        <div class="font-bold text-indigo-400">B1 - Intermediate</div>
+                        <div class="text-xs text-slate-400">Viajes y tiempos compuestos</div>
+                    </button>
+                    <button onclick="setManualLevel('B2')" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left transition-all">
+                        <div class="font-bold text-indigo-400">B2 - Upper</div>
+                        <div class="text-xs text-slate-400">Debates y modismos</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenedor del Test Diagnóstico (Oculto inicialmente) -->
+            <div id="diagnostic-container" class="hidden text-left space-y-4">
+                <div class="flex justify-between items-center text-xs text-slate-400 mb-2">
+                    <span id="diagnostic-progress-text">Pregunta 1 de 3</span>
+                    <span id="diagnostic-level-tag" class="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-md font-medium">Diagnóstico</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-4">
+                    <div id="diagnostic-bar" class="bg-indigo-500 h-full w-1/3 transition-all duration-300"></div>
+                </div>
+                <h3 id="diagnostic-question" class="text-lg font-bold mb-4">Loading question...</h3>
+                <div id="diagnostic-options" class="space-y-2">
+                    <!-- Opciones inyectadas por JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CABECERA PRINCIPAL / STATS BAR -->
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-black text-xl shadow-md">
+                EQ
+            </div>
+            <div>
+                <h2 class="font-bold text-sm tracking-wide">English Quest</h2>
+                <div class="flex items-center gap-2 text-xs text-slate-400">
+                    <span id="header-level" class="text-indigo-400 font-bold uppercase">Nivel A1</span>
+                    <span>•</span>
+                    <span id="header-streak" class="text-amber-400 font-semibold"><i class="fa-solid fa-fire"></i> <span id="streak-count">1</span> días</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1 bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-full text-xs font-semibold text-amber-300 shadow-inner">
+                <i class="fa-solid fa-coins"></i> <span id="header-coins">150</span>
+            </div>
+            <div class="flex items-center gap-1 bg-indigo-950/80 border border-indigo-800/60 px-3 py-1.5 rounded-full text-xs font-semibold text-indigo-300 shadow-inner">
+                <i class="fa-solid fa-star text-amber-400"></i> <span id="header-xp">420</span> XP
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL / SECCIONES -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 pb-28">
+        
+        <!-- PESTAÑA 1: INICIO (HOME) -->
+        <section id="tab-home" class="space-y-6">
+            <!-- Bienvenida Personalizada -->
+            <div class="bg-gradient-to-r from-indigo-900/60 to-violet-900/60 border border-indigo-700/40 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-4 translate-y-4 opacity-10 text-9xl pointer-events-none">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+                <span class="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Today's Mission</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 mb-2">¡Bienvenido de vuelta, Explorer!</h2>
+                <p class="text-slate-300 text-sm max-w-lg mb-4">Tu meta diaria está lista. Completa tus lecciones de hoy para mantener tu racha activa.</p>
+                
+                <div class="bg-slate-900/60 backdrop-blur rounded-2xl p-4 border border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-600/30 text-indigo-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm">Reto Diario Activo</div>
+                            <div class="text-xs text-slate-400">Completa la frase clave de hoy</div>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('home')" class="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md transition-all">Resolver Reto (+20 XP)</button>
+                </div>
+            </div>
+
+            <!-- Reto del Día (Daily Challenge Interactivo) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-orange-500"></i> 🔥 Reto del Día / Daily Challenge
+                    </h3>
+                    <span class="text-xs bg-orange-500/20 text-orange-400 px-2.5 py-1 rounded-lg font-semibold">+20 XP</span>
+                </div>
+                <p class="text-slate-300 text-sm mb-4 font-medium" id="daily-challenge-question">Completa la frase: “I ___ to school every day.”</p>
+                <div id="daily-challenge-options" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                    <!-- Inyectado por JS -->
+                </div>
+                <div id="daily-challenge-result" class="text-xs font-semibold hidden"></div>
+            </div>
+
+            <!-- Plan del Día (Today's Plan Checklist) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-indigo-400"></i> Today’s Plan / Plan del Día
+                </h3>
+                <div class="space-y-3" id="daily-plan-list">
+                    <label class="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 cursor-pointer hover:bg-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" checked disabled class="w-5 h-5 rounded text-indigo-600 bg-slate-900 border-slate-700">
+                            <span class="text-sm line-through text-slate-400">10 min – Vocabulary (Family & School)</span>
+                        </div>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-medium">Completado</span>
+                    </label>
+                    <label class="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 cursor-pointer hover:bg-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="plan-task-2" onchange="completeTask(this)" class="w-5 h-5 rounded text-indigo-600 bg-slate-900 border-slate-700 cursor-pointer">
+                            <span class="text-sm font-medium">10 min – Listening (Song & Lyrics)</span>
+                        </div>
+                        <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-medium">Pendiente</span>
+                    </label>
+                    <label class="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 cursor-pointer hover:bg-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="plan-task-3" onchange="completeTask(this)" class="w-5 h-5 rounded text-indigo-600 bg-slate-900 border-slate-700 cursor-pointer">
+                            <span class="text-sm font-medium">10 min – Grammar & Writing Practice</span>
+                        </div>
+                        <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-medium">Pendiente</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: VOCABULARIO -->
+        <section id="tab-vocab" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold">Vocabulario Interactivo</h2>
+                    <p class="text-slate-400 text-sm">Explora por categorías y guarda tus palabras favoritas.</p>
+                </div>
+                <!-- Selector de Categorías -->
+                <select id="vocab-category-select" onchange="filterVocabulary(this.value)" class="bg-slate-900 border border-slate-800 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500">
+                    <option value="all">Todas las categorías</option>
+                    <option value="Family">Family (Familia)</option>
+                    <option value="School">School (Escuela)</option>
+                    <option value="Food">Food (Comida)</option>
+                    <option value="Animals">Animals (Animales)</option>
+                    <option value="Travel">Travel (Viajes)</option>
+                </select>
+            </div>
+
+            <!-- Tarjetas de Vocabulario Grid -->
+            <div id="vocab-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Tarjetas inyectadas por JS -->
+            </div>
+        </section>
+
+        <!-- PESTAÑA 3: LISTENING & SPEAKING -->
+        <section id="tab-media" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-extrabold">Listening & Speaking</h2>
+                <p class="text-slate-400 text-sm">Practica con canciones, videos y conversaciones de la vida real.</p>
+            </div>
+
+            <!-- Submenú de Media -->
+            <div class="flex gap-2 border-b border-slate-800 pb-3">
+                <button onclick="switchMediaTab('songs')" id="btn-media-songs" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition-all">🎵 Sing and Learn (Canciones)</button>
+                <button onclick="switchMediaTab('videos')" id="btn-media-videos" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 hover:bg-slate-800 transition-all">📺 Videos Educativos</button>
+                <button onclick="switchMediaTab('conversations')" id="btn-media-conv" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 hover:bg-slate-800 transition-all">🗣️ Real-Life Conversations</button>
+            </div>
+
+            <!-- Contenido Songs -->
+            <div id="media-content-songs" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded font-semibold">Nivel A1</span>
+                            <h3 class="font-bold text-lg mt-2">“Hello, Goodbye” – The Beatles</h3>
+                            <p class="text-xs text-slate-400 mt-1">Practica saludos básicos y opuestos en esta canción clásica.</p>
+                        </div>
+                        <button onclick="openSongModal('Hello, Goodbye', 'A1', ['You say yes, I say no', 'You say stop, and I say go, go, go'])" class="mt-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-headphones"></i> Reproducir y Practicar
+                        </button>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded font-semibold">Nivel A2</span>
+                            <h3 class="font-bold text-lg mt-2">“Perfect” – Ed Sheeran</h3>
+                            <p class="text-xs text-slate-400 mt-1">Mejora tu comprensión auditiva con vocabulario romántico y cotidiano.</p>
+                        </div>
+                        <button onclick="openSongModal('Perfect', 'A2', ['I found a love for me', 'Darling, just dive right in'])" class="mt-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-headphones"></i> Reproducir y Practicar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido Videos (Oculto inicialmente) -->
+            <div id="media-content-videos" class="space-y-4 hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                        <div class="w-full h-36 bg-slate-800 rounded-xl mb-3 flex items-center justify-center text-indigo-400 text-4xl relative overflow-hidden">
+                            <i class="fa-solid fa-circle-play"></i>
+                            <div class="absolute inset-0 bg-indigo-600/10"></div>
+                        </div>
+                        <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded font-semibold">A1 – Beginner</span>
+                        <h3 class="font-bold text-lg mt-2">Introducing Myself</h3>
+                        <p class="text-xs text-slate-400 mt-1">Aprende cómo presentarte ante nuevos amigos paso a paso.</p>
+                        <button onclick="triggerAudioSimulation('Reproduciendo video: Introducing Myself... ¡Subtítulos activos!')" class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl transition-all">Ver Video</button>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                        <div class="w-full h-36 bg-slate-800 rounded-xl mb-3 flex items-center justify-center text-indigo-400 text-4xl relative overflow-hidden">
+                            <i class="fa-solid fa-circle-play"></i>
+                            <div class="absolute inset-0 bg-indigo-600/10"></div>
+                        </div>
+                        <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded font-semibold">A2 – Elementary</span>
+                        <h3 class="font-bold text-lg mt-2">Ordering Food at a Restaurant</h3>
+                        <p class="text-xs text-slate-400 mt-1">Situación real para pedir comida y bebidas en inglés.</p>
+                        <button onclick="triggerAudioSimulation('Reproduciendo video: Ordering Food... ¡Subtítulos activos!')" class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl transition-all">Ver Video</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido Conversations (Oculto inicialmente) -->
+            <div id="media-content-conv" class="space-y-4 hidden">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+                    <h3 class="font-bold text-lg">Simulador de Conversación Real</h3>
+                    <p class="text-xs text-slate-400">Escucha la pregunta y responde utilizando el micrófono (simulado por voz).</p>
+                    <div class="p-4 bg-slate-800/60 rounded-xl border border-slate-700/60">
+                        <div class="text-xs text-indigo-400 font-bold mb-1">Speaker AI:</div>
+                        <div class="text-sm italic">"Hello! What is your favorite hobby?"</div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="triggerSpeechRecognition()" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all">
+                            <i class="fa-solid fa-microphone text-base"></i> Hablar / Responder
+                        </button>
+                        <button onclick="triggerAudioSimulation('Audio reproducido correctamente.')" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-high"></i> Repetir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 4: WRITING & READING / GRAMMAR -->
+        <section id="tab-writing" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-extrabold">Writing, Reading & Grammar</h2>
+                <p class="text-slate-400 text-sm">Domina las reglas gramaticales y mejora tu comprensión lectora y escrita.</p>
+            </div>
+
+            <!-- Módulos Interactivos de Gramática -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded font-semibold">Grammar A1</span>
+                        <h3 class="font-bold text-lg mt-2">Verb “To Be” & Pronouns</h3>
+                        <p class="text-xs text-slate-400 mt-1">Aprende a usar am, is, are con ejemplos prácticos y ejercicios cortos.</p>
+                    </div>
+                    <button onclick="openGrammarModal('Verb To Be', 'I am (Soy/Estoy), You are (Eres/Estás), He/She/It is (Es/Está). Se utiliza para estados, profesiones y nacionalidades.')" class="mt-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all">Estudiar y Practicar</button>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded font-semibold">Reading A2</span>
+                        <h3 class="font-bold text-lg mt-2">Short Story: My Daily Routine</h3>
+                        <p class="text-xs text-slate-400 mt-1">Lee un texto corto sobre la rutina diaria y responde preguntas de comprensión.</p>
+                    </div>
+                    <button onclick="openReadingModal('My Daily Routine', 'Every morning, Anna wakes up at 7:00 AM. She brushes her teeth, eats a healthy breakfast with eggs and orange juice, and takes the bus to school.')" class="mt-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all">Leer y Responder</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 5: JUEGOS PARA APRENDER -->
+        <section id="tab-games" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-extrabold">Juegos Educativos</h2>
+                <p class="text-slate-400 text-sm">Diviértete mientras pones a prueba tus conocimientos de inglés y ganas XP.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-xl flex items-center justify-center text-xl mb-3">
+                            <i class="fa-solid fa-puzzle-piece"></i>
+                        </div>
+                        <h3 class="font-bold text-base">Word Scramble</h3>
+                        <p class="text-xs text-slate-400 mt-1">Ordena las letras para formar la palabra correcta en inglés.</p>
+                    </div>
+                    <button onclick="startMiniGame('scramble')" class="mt-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all">Jugar Ahora</button>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-violet-600/20 text-violet-400 rounded-xl flex items-center justify-center text-xl mb-3">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="font-bold text-base">Quick Quiz</h3>
+                        <p class="text-xs text-slate-400 mt-1">Preguntas rápidas de opción múltiple sobre vocabulario y gramática.</p>
+                    </div>
+                    <button onclick="startMiniGame('quiz')" class="mt-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all">Jugar Ahora</button>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-emerald-600/20 text-emerald-400 rounded-xl flex items-center justify-center text-xl mb-3">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h3 class="font-bold text-base">Memory Game</h3>
+                        <p class="text-xs text-slate-400 mt-1">Empareja cada palabra en inglés con su traducción al español.</p>
+                    </div>
+                    <button onclick="startMiniGame('memory')" class="mt-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all">Jugar Ahora</button>
+                </div>
+            </div>
+
+            <!-- Contenedor dinámico del Mini Juego -->
+            <div id="game-arena" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <!-- Inyectado por JS -->
+            </div>
+        </section>
+
+        <!-- PESTAÑA 6: PROGRESO Y RUTA DE APRENDIZAJE -->
+        <section id="tab-progress" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-extrabold">Learning Path & Progress</h2>
+                <p class="text-slate-400 text-sm">Tu ruta de aprendizaje estilo Duolingo y estadísticas de progreso.</p>
+            </div>
+
+            <!-- Tarjeta Resumen Estadísticas -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+                    <div class="text-amber-400 text-xl font-black mb-1" id="stat-xp">420</div>
+                    <div class="text-xs text-slate-400">XP Total</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+                    <div class="text-orange-400 text-xl font-black mb-1" id="stat-streak">1</div>
+                    <div class="text-xs text-slate-400">Días de Racha</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+                    <div class="text-indigo-400 text-xl font-black mb-1" id="stat-completed">12</div>
+                    <div class="text-xs text-slate-400">Lecciones</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+                    <div class="text-emerald-400 text-xl font-black mb-1">85%</div>
+                    <div class="text-xs text-slate-400">Precisión</div>
+                </div>
+            </div>
+
+            <!-- Ruta Visual de Aprendizaje -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-indigo-400"></i> Ruta 🌱 Beginner A1
+                </h3>
+                
+                <div class="space-y-4 relative before:absolute before:top-4 before:bottom-4 before:left-7 before:w-0.5 before:bg-slate-800">
+                    <div class="flex items-center gap-4 relative">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-md z-10">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-2xl flex-1 flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-sm">Unit 1 – Hello! (Saludos y presentaciones)</h4>
+                                <p class="text-xs text-slate-400">Completado al 100%</p>
+                            </div>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-semibold">Completado</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 relative">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-md z-10 animate-pulse">
+                            2
+                        </div>
+                        <div class="bg-indigo-950/40 border border-indigo-700/40 p-4 rounded-2xl flex-1 flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-sm text-indigo-300">Unit 2 – My Family (Familia y Parentesco)</h4>
+                                <p class="text-xs text-slate-400">En curso (Lección 2 de 4)</p>
+                            </div>
+                            <button onclick="switchTab('vocab')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all">Continuar</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 relative opacity-60">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-lg shadow-md z-10">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div class="bg-slate-800/40 border border-slate-700/40 p-4 rounded-2xl flex-1 flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-sm">Unit 3 – My Daily Life (Rutinas)</h4>
+                                <p class="text-xs text-slate-400">Bloqueado (Requiere completar Unit 2)</p>
+                            </div>
+                            <span class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-lock"></i> Bloqueado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MENSAJE MODAL PARA LECCIONES / CANCIONES / GRAMÁTICA -->
+    <div id="generic-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeGenericModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="modal-title" class="text-xl font-bold mb-3">Título</h3>
+            <div id="modal-body" class="text-sm text-slate-300 space-y-3 mb-6">
+                <!-- Contenido dinámico -->
+            </div>
+            <button onclick="closeGenericModal()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition-all">Entendido / Cerrar</button>
+        </div>
+    </div>
+
+    <!-- NAVEGACIÓN INFERIOR / BOTTOM NAVIGATION -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 z-40 px-2 py-2 flex items-center justify-around max-w-2xl mx-auto rounded-t-3xl shadow-2xl">
+        <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-indigo-400 transition-all p-2">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] font-semibold">Inicio</span>
+        </button>
+        <button onclick="switchTab('vocab')" id="nav-vocab" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-400 transition-all p-2">
+            <i class="fa-solid fa-book-open text-lg"></i>
+            <span class="text-[10px] font-semibold">Vocab</span>
+        </button>
+        <button onclick="switchTab('media')" id="nav-media" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-400 transition-all p-2">
+            <i class="fa-solid fa-headphones text-lg"></i>
+            <span class="text-[10px] font-semibold">Audio</span>
+        </button>
+        <button onclick="switchTab('writing')" id="nav-writing" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-400 transition-all p-2">
+            <i class="fa-solid fa-pen-nib text-lg"></i>
+            <span class="text-[10px] font-semibold">Grammar</span>
+        </button>
+        <button onclick="switchTab('games')" id="nav-games" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-400 transition-all p-2">
+            <i class="fa-solid fa-gamepad text-lg"></i>
+            <span class="text-[10px] font-semibold">Juegos</span>
+        </button>
+        <button onclick="switchTab('progress')" id="nav-progress" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-400 transition-all p-2">
+            <i class="fa-solid fa-chart-line text-lg"></i>
+            <span class="text-[10px] font-semibold">Progreso</span>
+        </button>
+    </nav>
+
+    <!-- SCRIPT DE LÓGICA E INTERACTIVIDAD -->
+    <script>
+        // Estado Global de la App
+        let appState = {
+            level: 'A1',
+            xp: 420,
+            coins: 150,
+            streak: 1,
+            completedLessons: 12
+        };
+
+        // Base de Datos de Vocabulario
+        const vocabularyData = [
+            { word: "Family", trans: "Familia", category: "Family", example: "I love my family.", icon: "fa-people-roof" },
+            { word: "School", trans: "Escuela", category: "School", example: "She goes to school.", icon: "fa-school" },
+            { word: "Apple", trans: "Manzana", category: "Food", example: "An apple a day.", icon: "fa-apple-whole" },
+            { word: "Dog", trans: "Perro", category: "Animals", example: "The dog barks.", icon: "fa-dog" },
+            { word: "Travel", trans: "Viajar", category: "Travel", example: "I want to travel.", icon: "fa-plane" },
+            { word: "Teacher", trans: "Profesor/a", category: "School", example: "He is a good teacher.", icon: "fa-chalkboard-user" }
+        ];
+
+        // Preguntas de Diagnóstico Inicial
+        const diagnosticQuestions = [
+            {
+                q: "¿Cómo se dice 'Gracias' en inglés?",
+                options: ["Please", "Thank you", "Hello", "Goodbye"],
+                correct: 1,
+                level: "A1"
+            },
+            {
+                q: "Completa la oración: 'Yesterday, I ___ to the cinema.'",
+                options: ["go", "goes", "went", "going"],
+                correct: 2,
+                level: "A2"
+            },
+            {
+                q: "Elige la opción correcta con Present Perfect:",
+                options: ["I have visited London twice.", "I visited London yesterday.", "I am visit London.", "I will visit London."],
+                correct: 0,
+                level: "B1"
+            }
+        ];
+        let currentDiagnosticIndex = 0;
+        let detectedLevel = 'A1';
+
+        // Inicialización al cargar la ventana
+        window.onload = function() {
+            renderVocabulary(vocabularyData);
+            setupDailyChallenge();
+            loadUserData();
+        };
+
+        function loadUserData() {
+            const saved = localStorage.getItem('english_quest_state');
+            if (saved) {
+                appState = JSON.parse(saved);
+                updateStatsUI();
+            }
+        }
+
+        function saveUserData() {
+            localStorage.setItem('english_quest_state', JSON.stringify(appState));
+            updateStatsUI();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('header-xp').innerText = appState.xp;
+            document.getElementById('header-coins').innerText = appState.coins;
+            document.getElementById('header-level').innerText = `Nivel ${appState.level}`;
+            document.getElementById('header-streak').innerHTML = `<i class="fa-solid fa-fire"></i> ${appState.streak} días`;
+            document.getElementById('stat-xp').innerText = appState.xp;
+            document.getElementById('stat-streak').innerText = appState.streak;
+            document.getElementById('stat-completed').innerText = appState.completedLessons;
+        }
+
+        // Sistema de Pestañas
+        function switchTab(tabId) {
+            const tabs = ['home', 'vocab', 'media', 'writing', 'games', 'progress'];
+            tabs.forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).classList.remove('text-indigo-400');
+                document.getElementById(`nav-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabId}`).classList.remove('text-slate-400');
+            document.getElementById(`nav-${tabId}`).classList.add('text-indigo-400');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Test Diagnóstico
+        function startDiagnostic() {
+            document.getElementById('welcome-step-1').classList.add('hidden');
+            document.getElementById('diagnostic-container').classList.remove('hidden');
+            renderDiagnosticQuestion();
+        }
+
+        function renderDiagnosticQuestion() {
+            if (currentDiagnosticIndex >= diagnosticQuestions.length) {
+                // Fin del test
+                document.getElementById('welcome-screen').classList.add('hidden');
+                showToast(`¡Diagnóstico completado! Nivel asignado: ${detectedLevel}`, 'fa-solid fa-award text-indigo-400');
+                appState.level = detectedLevel;
+                saveUserData();
+                return;
+            }
+            const qData = diagnosticQuestions[currentDiagnosticIndex];
+            document.getElementById('diagnostic-progress-text').innerText = `Pregunta ${currentDiagnosticIndex + 1} de ${diagnosticQuestions.length}`;
+            document.getElementById('diagnostic-bar').style.width = `${((currentDiagnosticIndex + 1) / diagnosticQuestions.length) * 100}%`;
+            document.getElementById('diagnostic-question').innerText = qData.q;
+            
+            const optionsEl = document.getElementById('diagnostic-options');
+            optionsEl.innerHTML = '';
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-medium transition-all';
+                btn.innerText = opt;
+                btn.onclick = () => answerDiagnostic(idx, qData.correct, qData.level);
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        function answerDiagnostic(selected, correct, level) {
+            if (selected === correct) {
+                detectedLevel = level;
+            }
+            currentDiagnosticIndex++;
+            renderDiagnosticQuestion();
+        }
+
+        function setManualLevel(level) {
+            appState.level = level;
+            saveUserData();
+            document.getElementById('welcome-screen').classList.add('hidden');
+            showToast(`Nivel seleccionado: ${level}`, 'fa-solid fa-circle-check text-emerald-400');
+        }
+
+        // Reto Diario
+        function setupDailyChallenge() {
+            const container = document.getElementById('daily-challenge-options');
+            container.innerHTML = `
+                <button onclick="solveChallenge(false)" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-semibold transition-all">A) goes</button>
+                <button onclick="solveChallenge(true)" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-semibold transition-all">B) go</button>
+                <button onclick="solveChallenge(false)" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-semibold transition-all">C) going</button>
+            `;
+        }
+
+        function solveChallenge(isCorrect) {
+            const resEl = document.getElementById('daily-challenge-result');
+            resEl.classList.remove('hidden');
+            if (isCorrect) {
+                resEl.className = 'text-xs font-semibold text-emerald-400';
+                resEl.innerText = '¡Correcto! +20 XP añadidos.';
+                appState.xp += 20;
+                appState.coins += 10;
+                saveUserData();
+                showToast('¡Reto completado!', 'fa-solid fa-star text-amber-400');
+            } else {
+                resEl.className = 'text-xs font-semibold text-rose-400';
+                resEl.innerText = 'Incorrecto. La respuesta correcta es "go".';
+            }
+        }
+
+        function completeTask(checkbox) {
+            if (checkbox.checked) {
+                appState.xp += 15;
+                appState.completedLessons++;
+                saveUserData();
+                showToast('¡Tarea completada! +15 XP', 'fa-solid fa-circle-check text-emerald-400');
+            }
+        }
+
+        // Vocabulario
+        function renderVocabulary(data) {
+            const grid = document.getElementById('vocab-grid');
+            grid.innerHTML = '';
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-lg"><i class="fa-solid ${item.icon}"></i></span>
+                            <span class="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded font-medium">${item.category}</span>
+                        </div>
+                        <h4 class="font-bold text-lg">${item.word}</h4>
+                        <p class="text-xs text-indigo-300 mb-2">${item.trans}</p>
+                        <p class="text-xs text-slate-400 italic">"${item.example}"</p>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="triggerAudioSimulation('Pronunciando: ${item.word}')" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-volume-high"></i> Audio
+                        </button>
+                        <button onclick="saveWord('${item.word}')" class="px-3 py-2 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 rounded-xl transition-all">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterVocabulary(cat) {
+            if (cat === 'all') {
+                renderVocabulary(vocabularyData);
+            } else {
+                const filtered = vocabularyData.filter(v => v.category === cat);
+                renderVocabulary(filtered);
+            }
+        }
+
+        function saveWord(word) {
+            showToast(`¡Palabra "${word}" guardada en favoritos!`, 'fa-solid fa-bookmark text-indigo-400');
+        }
+
+        // Media Subtabs
+        function switchMediaTab(sub) {
+            ['songs', 'videos', 'conv'].forEach(s => {
+                document.getElementById(`media-content-${s}`).classList.add('hidden');
+                document.getElementById(`btn-media-${s}`).classList.remove('bg-indigo-600', 'text-white');
+                document.getElementById(`btn-media-${s}`).classList.add('bg-slate-900', 'text-slate-400');
+            });
+            document.getElementById(`media-content-${sub}`).classList.remove('hidden');
+            document.getElementById(`btn-media-${sub}`).classList.remove('bg-slate-900', 'text-slate-400');
+            document.getElementById(`btn-media-${sub}`).classList.add('bg-indigo-600', 'text-white');
+        }
+
+        // Mini Juegos Interactivos
+        function startMiniGame(type) {
+            const arena = document.getElementById('game-arena');
+            arena.classList.remove('hidden');
+            arena.scrollIntoView({ behavior: 'smooth' });
+
+            if (type === 'scramble') {
+                arena.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">🔤 Word Scramble</h3>
+                        <button onclick="closeGameArena()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <p class="text-sm text-slate-300 mb-4">Ordena las letras para formar la palabra: <strong class="text-indigo-400 text-lg tracking-widest">E-H-O-L-L</strong></p>
+                    <input type="text" id="scramble-input" placeholder="Escribe tu respuesta..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm mb-4 focus:outline-none focus:border-indigo-500">
+                    <button onclick="checkScramble()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs">Comprobar Respuesta</button>
+                `;
+            } else if (type === 'quiz') {
+                arena.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">⚡ Quick Quiz</h3>
+                        <button onclick="closeGameArena()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <p class="text-sm text-slate-300 mb-4">¿Cuál es el pasado simple del verbo "go"?</p>
+                    <div class="space-y-2 mb-4">
+                        <button onclick="finishGame(false)" class="w-full text-left p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm">Goed</button>
+                        <button onclick="finishGame(true)" class="w-full text-left p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm">Went</button>
+                        <button onclick="finishGame(false)" class="w-full text-left p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm">Gone</button>
+                    </div>
+                `;
+            } else if (type === 'memory') {
+                arena.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">🧠 Memory Game</h3>
+                        <button onclick="closeGameArena()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <p class="text-sm text-slate-300 mb-4">Haz clic en el par correcto: <strong>Cat</strong></p>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button onclick="finishGame(true)" class="p-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-bold">Gato</button>
+                        <button onclick="finishGame(false)" class="p-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-bold">Perro</button>
+                    </div>
+                `;
+            }
+        }
+
+        function checkScramble() {
+            const val = document.getElementById('scramble-input').value.trim().toLowerCase();
+            if (val === 'hello') {
+                finishGame(true);
+            } else {
+                showToast('Incorrecto. Inténtalo de nuevo.', 'fa-solid fa-circle-xmark text-rose-400');
+            }
+        }
+
+        function finishGame(success) {
+            const arena = document.getElementById('game-arena');
+            arena.classList.add('hidden');
+            if (success) {
+                appState.xp += 30;
+                appState.coins += 15;
+                saveUserData();
+                showToast('¡Juego ganado! +30 XP y +15 Monedas', 'fa-solid fa-trophy text-amber-400');
+            } else {
+                showToast('¡Buen intento! Sigue practicando.', 'fa-solid fa-triangle-exclamation text-amber-400');
+            }
+        }
+
+        function closeGameArena() {
+            document.getElementById('game-arena').classList.add('hidden');
+        }
+
+        // Modales Genéricos
+        function openSongModal(title, level, lyrics) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerHTML = `
+                <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded font-semibold">Nivel ${level}</span>
+                <div class="mt-3 p-4 bg-slate-800/60 rounded-xl border border-slate-700/60 space-y-2">
+                    <div class="text-xs text-indigo-300 font-bold">Letra destacada:</div>
+                    ${lyrics.map(l => `<p class="italic">"${l}"</p>`).join('')}
+                </div>
+                <p class="text-xs text-slate-400">Escucha la pista y completa los espacios en blanco para ganar XP.</p>
+            `;
+            document.getElementById('generic-modal').classList.remove('hidden');
+            document.getElementById('generic-modal').classList.add('flex');
+        }
+
+        function openGrammarModal(title, explanation) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerHTML = `
+                <div class="p-4 bg-slate-800/60 rounded-xl border border-slate-700/60">
+                    <p class="text-sm">${explanation}</p>
+                </div>
+            `;
+            document.getElementById('generic-modal').classList.remove('hidden');
+            document.getElementById('generic-modal').classList.add('flex');
+        }
+
+        function openReadingModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerHTML = `
+                <div class="p-4 bg-slate-800/60 rounded-xl border border-slate-700/60">
+                    <p class="text-sm leading-relaxed">${text}</p>
+                </div>
+                <div class="text-xs text-indigo-400 font-bold mt-2">Pregunta: ¿A qué hora se despierta Anna?</div>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button onclick="finishGame(true)" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs">7:00 AM</button>
+                    <button onclick="finishGame(false)" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs">8:00 AM</button>
+                </div>
+            `;
+            document.getElementById('generic-modal').classList.remove('hidden');
+            document.getElementById('generic-modal').classList.add('flex');
+        }
+
+        function closeGenericModal() {
+            document.getElementById('generic-modal').classList.add('hidden');
+            document.getElementById('generic-modal').classList.remove('flex');
+        }
+
+        // Simulaciones de Audio y Voz
+        function triggerAudioSimulation(msg) {
+            showToast(msg, 'fa-solid fa-volume-high text-indigo-400');
+        }
+
+        function triggerSpeechRecognition() {
+            showToast('Escuchando micrófono... ¡Excelente pronunciación!', 'fa-solid fa-microphone text-emerald-400');
+            appState.xp += 10;
+            saveUserData();
+        }
+
+        // Sistema de Toasts / Notificaciones
+        function showToast(message, iconClass = 'fa-solid fa-circle-check text-emerald-400') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            document.getElementById('toast-icon').className = iconClass;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
