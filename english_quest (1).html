@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Quest - Learn & Master English</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B1120',
+                            card: '#1E293B',
+                            accent: '#06B6D4', // Cyan
+                            primary: '#3B82F6', // Blue
+                            gold: '#F59E0B' // Amber
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.7); }
+        }
+        .active-path-node {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- GLOBAL TOAST NOTIFICATION -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full opacity-0 transition-all duration-300 glass-card px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border-l-4 border-l-cyan-400 max-w-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-cyan-400 text-xl"></i>
+        <div>
+            <h4 id="toast-title" class="font-bold text-sm text-white">Notification</h4>
+            <p id="toast-msg" class="text-xs text-slate-300">Action completed successfully.</p>
+        </div>
+    </div>
+
+    <!-- WELCOME & DIAGNOSTIC MODAL / OVERLAY -->
+    <div id="welcome-overlay" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 overflow-y-auto">
+        <div class="max-w-lg w-full glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 text-center relative overflow-hidden">
+            <div class="absolute -top-16 -right-16 w-36 h-36 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="w-20 h-20 bg-gradient-to-tr from-blue-600 to-cyan-400 text-slate-950 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 shadow-lg shadow-cyan-500/20 font-black">
+                <i class="fa-solid fa-compass"></i>
+            </div>
+            
+            <h1 class="text-3xl font-black tracking-tight mb-2">English <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Quest</span></h1>
+            <p class="text-slate-400 text-sm mb-6">Empieza tu aventura interactiva de aprendizaje adaptativo de inglés.</p>
+            
+            <!-- STEP 1: CHOICE -->
+            <div id="diag-step-choice" class="space-y-4">
+                <button onclick="startDiagnosticTest()" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Test Diagnóstico Inicial (A1 - B2)
+                </button>
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-4 text-slate-500 text-xs uppercase font-bold tracking-wider">o selecciona manualmente</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectLevelManual('A1')" class="p-3 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left transition-all">
+                        <div class="font-bold text-cyan-400 text-sm">A1 Beginner</div>
+                        <div class="text-[11px] text-slate-400">Saludos, números y bases</div>
+                    </button>
+                    <button onclick="selectLevelManual('A2')" class="p-3 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left transition-all">
+                        <div class="font-bold text-blue-400 text-sm">A2 Elementary</div>
+                        <div class="text-[11px] text-slate-400">Rutinas, pasado y compras</div>
+                    </button>
+                    <button onclick="selectLevelManual('B1')" class="p-3 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left transition-all">
+                        <div class="font-bold text-amber-400 text-sm">B1 Intermediate</div>
+                        <div class="text-[11px] text-slate-400">Viajes, experiencias y opiniones</div>
+                    </button>
+                    <button onclick="selectLevelManual('B2')" class="p-3 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left transition-all">
+                        <div class="font-bold text-purple-400 text-sm">B2 Upper Int.</div>
+                        <div class="text-[11px] text-slate-400">Trabajo, debates y cultura</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: DIAGNOSTIC TEST RUNNER -->
+            <div id="diag-step-runner" class="hidden text-left space-y-4">
+                <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                    <span id="diag-counter">Pregunta 1 de 4</span>
+                    <span id="diag-target-level" class="bg-cyan-500/20 text-cyan-300 font-bold px-2.5 py-0.5 rounded-full border border-cyan-500/30">Target: A1</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-4">
+                    <div id="diag-progress-bar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full w-1/4 transition-all duration-300"></div>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/60 mb-2">
+                    <span id="diag-category-tag" class="text-[10px] uppercase font-extrabold tracking-wider text-cyan-400 block mb-1">VOCABULARY</span>
+                    <h3 id="diag-question-text" class="text-base font-bold text-white">Loading question...</h3>
+                </div>
+                <div id="diag-options-container" class="space-y-2.5">
+                    <!-- JS Options -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER & STATUS BAR -->
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-md">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-slate-950 text-xl shadow-md">
+                    EQ
+                </div>
+                <div>
+                    <h2 class="font-extrabold text-sm tracking-wide text-white">English Quest</h2>
+                    <div class="flex items-center gap-2 text-xs">
+                        <span id="user-level-badge" class="bg-cyan-500/20 text-cyan-300 font-extrabold px-2 py-0.5 rounded-md border border-cyan-500/30 uppercase text-[10px]">A1</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-amber-400 font-bold flex items-center gap-1"><i class="fa-solid fa-fire text-amber-500"></i> <span id="stat-streak">1</span> días</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-full text-xs font-bold text-amber-400 shadow-inner">
+                    <i class="fa-solid fa-coins"></i> <span id="stat-coins">150</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-full text-xs font-bold text-cyan-400 shadow-inner">
+                    <i class="fa-solid fa-star text-amber-400"></i> <span id="stat-xp">0</span> XP
+                </div>
+                <!-- Admin Mode Toggle -->
+                <button onclick="toggleAdminPanel()" title="Panel de Administración" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full flex items-center justify-center text-slate-300 hover:text-cyan-400 transition-all">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT CONTAINERS -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 pb-28">
+
+        <!-- TAB 1: HOME (PLAN & DAILY CHALLENGE) -->
+        <section id="tab-home" class="space-y-6">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-blue-900/60 via-slate-900 to-cyan-950/60 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl text-cyan-400 pointer-events-none">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <span class="bg-cyan-500/20 text-cyan-300 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-cyan-500/30">Plan Personalizado</span>
+                <h2 class="text-2xl sm:text-3xl font-black mt-3 mb-2 text-white">¡Aprende a tu propio ritmo!</h2>
+                <p class="text-slate-300 text-xs sm:text-sm max-w-lg mb-4">Completa el reto diario y avanza en tu plan de aprendizaje para mantener tu racha activa.</p>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="switchTab('vocab')" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg hover:brightness-110 transition-all">
+                        <i class="fa-solid fa-book-open mr-1"></i> Ir al Vocabulario
+                    </button>
+                    <button onclick="switchTab('path')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs rounded-xl border border-slate-700 transition-all">
+                        <i class="fa-solid fa-map-location-dot mr-1 text-cyan-400"></i> Ruta de Aprendizaje
+                    </button>
+                </div>
+            </div>
+
+            <!-- Daily Challenge -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-extrabold text-lg text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-amber-400"></i> 🔥 Reto del Día / Daily Challenge
+                    </h3>
+                    <span class="text-xs bg-amber-400/20 text-amber-300 font-extrabold px-2.5 py-1 rounded-full border border-amber-400/30">+20 XP</span>
+                </div>
+                <div id="daily-challenge-box" class="space-y-4">
+                    <p id="dc-question" class="text-sm font-semibold text-slate-200">Completa la frase: "I ___ to school every day."</p>
+                    <div id="dc-options" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Options injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Plan Checklist -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <h3 class="font-extrabold text-lg text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-cyan-400"></i> Today’s Plan / Plan del Día
+                </h3>
+                <div class="space-y-3" id="daily-plan-list">
+                    <!-- Dynamic tasks -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: VOCABULARY SECTION -->
+        <section id="tab-vocab" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-white">Vocabulario Interactivo</h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">Explora tarjetas, escucha la pronunciación y guarda tus palabras.</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <select id="vocab-category-filter" onchange="filterVocabCategory(this.value)" class="bg-slate-900 border border-slate-800 text-xs font-bold text-cyan-400 rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyan-500 w-full sm:w-auto">
+                        <option value="ALL">Todas las Categorías</option>
+                        <option value="Family">Family (Familia)</option>
+                        <option value="School">School (Escuela)</option>
+                        <option value="Food">Food (Comida)</option>
+                        <option value="Animals">Animals (Animales)</option>
+                        <option value="Travel">Travel (Viajes)</option>
+                        <option value="Technology">Technology (Tecnología)</option>
+                    </select>
+                    <button onclick="toggleBookmarksOnly()" id="btn-bookmark-filter" class="px-3 py-2.5 bg-slate-900 border border-slate-800 hover:border-amber-400 text-amber-400 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-bookmark"></i> <span class="hidden sm:inline">Guardados</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flashcards Grid -->
+            <div id="vocab-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- JS Flashcards -->
+            </div>
+        </section>
+
+        <!-- TAB 3: LISTENING & SPEAKING -->
+        <section id="tab-media" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-black text-white">Listening & Speaking</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Canciones, videos y simulación de conversaciones con voz.</p>
+            </div>
+
+            <!-- Subtabs Navigation -->
+            <div class="flex gap-2 border-b border-slate-800 pb-3 overflow-x-auto hide-scrollbar">
+                <button onclick="switchMediaSubTab('songs')" id="subbtn-songs" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-cyan-500 text-slate-950 transition-all shrink-0">🎵 Canciones por Nivel</button>
+                <button onclick="switchMediaSubTab('videos')" id="subbtn-videos" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-slate-400 hover:bg-slate-800 transition-all shrink-0">📺 Videos Educativos</button>
+                <button onclick="switchMediaSubTab('dialogues')" id="subbtn-dialogues" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-slate-400 hover:bg-slate-800 transition-all shrink-0">🗣️ Real-Life Conversations</button>
+            </div>
+
+            <!-- SUBTAB: SONGS -->
+            <div id="media-subtab-songs" class="space-y-4">
+                <div id="songs-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- JS Songs Cards -->
+                </div>
+            </div>
+
+            <!-- SUBTAB: VIDEOS -->
+            <div id="media-subtab-videos" class="space-y-4 hidden">
+                <div id="videos-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- JS Video Cards -->
+                </div>
+            </div>
+
+            <!-- SUBTAB: CONVERSATIONS (VOICE PROMPT UI) -->
+            <div id="media-subtab-dialogues" class="space-y-4 hidden">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-cyan-500/20 text-cyan-300 font-extrabold px-2.5 py-1 rounded-full border border-cyan-500/30">Simulador de Voz</span>
+                        <span class="text-xs text-slate-400">Practica la pronunciación</span>
+                    </div>
+
+                    <div id="dialogue-box" class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-2xl space-y-3">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-cyan-500 text-slate-950 flex items-center justify-center font-bold text-sm shrink-0">AI</div>
+                            <div>
+                                <div class="text-[10px] text-cyan-400 font-bold uppercase">Speaker AI</div>
+                                <p id="dialogue-ai-prompt" class="text-sm font-semibold text-white">"Hello! What is your favorite hobby and why do you like it?"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voice Interaction Controls -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="speakText(document.getElementById('dialogue-ai-prompt').innerText)" class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold text-xs rounded-xl border border-slate-700 flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-volume-high"></i> Escuchar AI
+                        </button>
+                        <button onclick="triggerMicRecording()" id="btn-mic-prompt" class="flex-1 py-3 px-4 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-microphone text-base"></i> Presiona para Responder por Micrófono
+                        </button>
+                    </div>
+                    <p id="mic-feedback" class="text-xs text-center text-slate-400 italic hidden">Escuchando... Di tu respuesta en inglés.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: WRITING & READING / GRAMMAR -->
+        <section id="tab-writing" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-black text-white">Writing, Reading & Grammar</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Aprende reglas de gramática (A1 - B2) y realiza lecturas comprensivas.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="grammar-modules-container">
+                <!-- JS Grammar modules -->
+            </div>
+        </section>
+
+        <!-- TAB 5: GAMES SECTION -->
+        <section id="tab-games" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-black text-white">Juegos Educativos</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Diviértete repasando conceptos y gana XP extra.</p>
+            </div>
+
+            <!-- Game Mode Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col justify-between hover:border-cyan-500/50 transition-all">
+                    <div>
+                        <div class="w-12 h-12 bg-cyan-500/20 text-cyan-400 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-cyan-500/30">
+                            <i class="fa-solid fa-puzzle-piece"></i>
+                        </div>
+                        <h3 class="font-extrabold text-base text-white">Word Scramble</h3>
+                        <p class="text-xs text-slate-400 mt-1">Ordena las letras para adivinar la palabra correcta.</p>
+                    </div>
+                    <button onclick="launchMiniGame('scramble')" class="mt-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition-all">Jugar Scramble</button>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col justify-between hover:border-blue-500/50 transition-all">
+                    <div>
+                        <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-blue-500/30">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="font-extrabold text-base text-white">Quick Quiz</h3>
+                        <p class="text-xs text-slate-400 mt-1">Preguntas veloces de opción múltiple.</p>
+                    </div>
+                    <button onclick="launchMiniGame('quiz')" class="mt-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all">Jugar Quick Quiz</button>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col justify-between hover:border-amber-500/50 transition-all">
+                    <div>
+                        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-amber-500/30">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h3 class="font-extrabold text-base text-white">Memory Game</h3>
+                        <p class="text-xs text-slate-400 mt-1">Encuentra los pares de palabras en inglés y español.</p>
+                    </div>
+                    <button onclick="launchMiniGame('memory')" class="mt-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition-all">Jugar Memory</button>
+                </div>
+            </div>
+
+            <!-- Dynamic Game Interactive Playground -->
+            <div id="game-playground" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative">
+                <button onclick="closeGamePlayground()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+                <div id="game-playground-content">
+                    <!-- Dynamic game markup -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: LEARNING PATH (DUOLINGO STYLE) -->
+        <section id="tab-path" class="space-y-6 hidden">
+            <div>
+                <h2 class="text-2xl font-black text-white">Ruta de Aprendizaje</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Avanza unidad por unidad para desbloquear nuevos niveles de inglés.</p>
+            </div>
+
+            <!-- Level Selector Bar -->
+            <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+                <button onclick="renderPathForLevel('A1')" id="path-level-btn-A1" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-cyan-500 text-slate-950 transition-all">Nivel A1</button>
+                <button onclick="renderPathForLevel('A2')" id="path-level-btn-A2" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700 transition-all">Nivel A2</button>
+                <button onclick="renderPathForLevel('B1')" id="path-level-btn-B1" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700 transition-all">Nivel B1</button>
+                <button onclick="renderPathForLevel('B2')" id="path-level-btn-B2" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700 transition-all">Nivel B2</button>
+            </div>
+
+            <!-- Visual Path Nodes Timeline -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl relative min-h-[350px]">
+                <div id="path-nodes-container" class="flex flex-col items-center space-y-8 relative z-10">
+                    <!-- Dynamic Path Nodes injected by JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ADMIN PANEL OVERLAY / MODAL -->
+    <div id="admin-panel" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative">
+            <button onclick="toggleAdminPanel()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex items-center gap-2 mb-4">
+                <i class="fa-solid fa-sliders text-cyan-400 text-xl"></i>
+                <h3 class="text-xl font-black text-white">Panel de Administración</h3>
+            </div>
+            <p class="text-xs text-slate-400 mb-6">Agrega nuevo vocabulario o ejercicios educativos sin reiniciar el código fuente.</p>
+
+            <form id="admin-add-vocab-form" onsubmit="handleAdminAddVocab(event)" class="space-y-3">
+                <h4 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400">Agregar Palabra de Vocabulario</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="admin-word" placeholder="Palabra en Inglés" required class="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    <input type="text" id="admin-translation" placeholder="Traducción en Español" required class="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="admin-category" class="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <option value="Family">Family</option>
+                        <option value="School">School</option>
+                        <option value="Food">Food</option>
+                        <option value="Animals">Animals</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Technology">Technology</option>
+                    </select>
+                    <select id="admin-level" class="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <option value="A1">A1 Beginner</option>
+                        <option value="A2">A2 Elementary</option>
+                        <option value="B1">B1 Intermediate</option>
+                        <option value="B2">B2 Upper Int.</option>
+                    </select>
+                </div>
+                <input type="text" id="admin-example" placeholder="Oración de ejemplo en inglés" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition-all">
+                    Guardar Nuevo Vocabulario
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- GENERIC CONTENT READER / EXERCISE MODAL -->
+    <div id="exercise-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeExerciseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="ex-modal-title" class="text-xl font-extrabold text-white mb-3">Exercise Title</h3>
+            <div id="ex-modal-body" class="text-xs sm:text-sm text-slate-300 space-y-4 mb-6">
+                <!-- Dynamic Content -->
+            </div>
+            <button onclick="closeExerciseModal()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold rounded-xl text-xs transition-all">Entendido</button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 z-40 px-2 py-2 flex items-center justify-around max-w-2xl mx-auto rounded-t-3xl shadow-2xl">
+        <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-cyan-400 transition-all p-2">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] font-bold">Inicio</span>
+        </button>
+        <button onclick="switchTab('vocab')" id="nav-vocab" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-all p-2">
+            <i class="fa-solid fa-book-open text-lg"></i>
+            <span class="text-[10px] font-bold">Vocab</span>
+        </button>
+        <button onclick="switchTab('media')" id="nav-media" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-all p-2">
+            <i class="fa-solid fa-headphones text-lg"></i>
+            <span class="text-[10px] font-bold">Audio</span>
+        </button>
+        <button onclick="switchTab('writing')" id="nav-writing" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-all p-2">
+            <i class="fa-solid fa-pen-nib text-lg"></i>
+            <span class="text-[10px] font-bold">Gramática</span>
+        </button>
+        <button onclick="switchTab('games')" id="nav-games" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-all p-2">
+            <i class="fa-solid fa-gamepad text-lg"></i>
+            <span class="text-[10px] font-bold">Juegos</span>
+        </button>
+        <button onclick="switchTab('path')" id="nav-path" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-all p-2">
+            <i class="fa-solid fa-map-location-dot text-lg"></i>
+            <span class="text-[10px] font-bold">Ruta</span>
+        </button>
+    </nav>
+
+    <!-- APPLICATION LOGIC CODE -->
+    <script>
+        /* State Storage Management */
+        const DEFAULT_STATE = {
+            level: 'A1',
+            xp: 0,
+            coins: 100,
+            streak: 1,
+            completedNodes: ['A1-U1'],
+            bookmarks: [],
+            dailyTasksCompleted: []
+        };
+
+        let appState = JSON.parse(localStorage.getItem('EQ_APP_STATE')) || DEFAULT_STATE;
+
+        function saveState() {
+            localStorage.setItem('EQ_APP_STATE', JSON.stringify(appState));
+            updateHeaderStats();
+        }
+
+        function updateHeaderStats() {
+            document.getElementById('stat-xp').innerText = appState.xp;
+            document.getElementById('stat-coins').innerText = appState.coins;
+            document.getElementById('stat-streak').innerText = appState.streak;
+            document.getElementById('user-level-badge').innerText = appState.level;
+        }
+
+        /* Database Definition */
+        let vocabDatabase = [
+            { id: 1, word: "Mother", trans: "Madre", cat: "Family", level: "A1", example: "My mother is very kind.", icon: "fa-person-dress" },
+            { id: 2, word: "Teacher", trans: "Profesor/a", cat: "School", level: "A1", example: "The teacher explains the lesson.", icon: "fa-chalkboard-user" },
+            { id: 3, word: "Apple", trans: "Manzana", cat: "Food", level: "A1", example: "I eat a red apple.", icon: "fa-apple-whole" },
+            { id: 4, word: "Dog", trans: "Perro", cat: "Animals", level: "A1", example: "The dog barks at night.", icon: "fa-dog" },
+            { id: 5, word: "Airport", trans: "Aeropuerto", cat: "Travel", level: "A2", example: "We arrived at the airport on time.", icon: "fa-plane" },
+            { id: 6, word: "Computer", trans: "Computadora", cat: "Technology", level: "B1", example: "Technology improves our daily life.", icon: "fa-laptop" }
+        ];
+
+        const songsDatabase = [
+            { title: "Hello, Goodbye", artist: "The Beatles", level: "A1", lyrics: ["You say yes, I say no", "You say stop, and I say go, go, go"] },
+            { title: "Count on Me", artist: "Bruno Mars", level: "A1", lyrics: ["If you ever find yourself stuck in the middle of the sea", "I'll sail the world to find you"] },
+            { title: "Perfect", artist: "Ed Sheeran", level: "A2", lyrics: ["I found a love for me", "Darling, just dive right in and follow my lead"] },
+            { title: "Viva La Vida", artist: "Coldplay", level: "B1", lyrics: ["I used to rule the world", "Seas would rise when I gave the word"] },
+            { title: "Demons", artist: "Imagine Dragons", level: "B2", lyrics: ["When the days are cold", "And the cards all fold"] }
+        ];
+
+        const videosDatabase = [
+            { title: "Introducing Myself", level: "A1", desc: "Aprende a dar tu nombre, edad y gustos personales." },
+            { title: "Going Shopping", level: "A2", desc: "Cómo preguntar precios y pagar en tiendas." },
+            { title: "Traveling Around the World", level: "B1", desc: "Vocabulario para aeropuertos y reservas de hotel." },
+            { title: "Climate Change & Action", level: "B2", desc: "Debate sobre medio ambiente y sostenibilidad." }
+        ];
+
+        const grammarDatabase = [
+            { level: "A1", title: "Verb 'To Be'", topic: "Uso de Am / Is / Are para estados y profesiones.", content: "I am a student. She is a teacher. They are friends." },
+            { level: "A2", title: "Past Simple", topic: "Expresar acciones terminadas en el pasado.", content: "Regular verbs add -ed (walk -> walked). Irregular verbs change (go -> went)." },
+            { level: "B1", title: "Present Perfect", topic: "Experiencias y acciones conectadas con el presente.", content: "Structure: Subject + Have/Has + Past Participle. Example: 'I have visited London.'" },
+            { level: "B2", title: "Second Conditional", topic: "Situaciones hipotéticas o imaginarias en el presente.", content: "Structure: If + Past Simple, Would + Verb. Example: 'If I won the lottery, I would travel.'" }
+        ];
+
+        const diagnosticQuestions = [
+            { q: "Choose the correct pronoun: '___ am learning English.'", options: ["I", "He", "They", "We"], correct: 0, level: "A1", cat: "Grammar" },
+            { q: "Select the past tense of 'go':", options: ["Goes", "Went", "Gone", "Going"], correct: 1, level: "A2", cat: "Grammar" },
+            { q: "Choose the correct sentence:", options: ["I have lived here for 2 years.", "I living here since 2 years.", "I lived here since 2 years.", "I has lived here."], correct: 0, level: "B1", cat: "Reading" },
+            { q: "Which conditional is correct for unreal future?", options: ["If I study, I pass.", "If I won, I would buy a house.", "If I win, I bought a house.", "If I had won, I win."], correct: 1, level: "B2", cat: "Grammar" }
+        ];
+
+        /* Diagnostic Runner Logic */
+        let diagCurrentIdx = 0;
+        let diagScore = 0;
+
+        function startDiagnosticTest() {
+            document.getElementById('diag-step-choice').classList.add('hidden');
+            document.getElementById('diag-step-runner').classList.remove('hidden');
+            diagCurrentIdx = 0;
+            diagScore = 0;
+            renderDiagQuestion();
+        }
+
+        function renderDiagQuestion() {
+            const q = diagnosticQuestions[diagCurrentIdx];
+            document.getElementById('diag-counter').innerText = `Pregunta ${diagCurrentIdx + 1} de ${diagnosticQuestions.length}`;
+            document.getElementById('diag-target-level').innerText = `Target: ${q.level}`;
+            document.getElementById('diag-progress-bar').style.width = `${((diagCurrentIdx + 1) / diagnosticQuestions.length) * 100}%`;
+            document.getElementById('diag-category-tag').innerText = q.cat;
+            document.getElementById('diag-question-text').innerText = q.q;
+
+            const optContainer = document.getElementById('diag-options-container');
+            optContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-3.5 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-white transition-all';
+                btn.innerText = opt;
+                btn.onclick = () => answerDiagQuestion(idx, q.correct);
+                optContainer.appendChild(btn);
+            });
+        }
+
+        function answerDiagQuestion(selected, correct) {
+            if (selected === correct) diagScore++;
+            diagCurrentIdx++;
+            if (diagCurrentIdx < diagnosticQuestions.length) {
+                renderDiagQuestion();
+            } else {
+                let assigned = 'A1';
+                if (diagScore === 2) assigned = 'A2';
+                else if (diagScore === 3) assigned = 'B1';
+                else if (diagScore === 4) assigned = 'B2';
+
+                selectLevelManual(assigned);
+                showToast(`Test Finalizado. ¡Se te ha asignado el nivel ${assigned}!`, 'fa-solid fa-award text-amber-400');
+            }
+        }
+
+        function selectLevelManual(lvl) {
+            appState.level = lvl;
+            saveState();
+            document.getElementById('welcome-overlay').classList.add('hidden');
+            renderPathForLevel(lvl);
+            showToast(`Nivel activo establecido en: ${lvl}`, 'fa-solid fa-circle-check text-cyan-400');
+        }
+
+        /* Navigation Tab Handler */
+        function switchTab(tabId) {
+            const tabs = ['home', 'vocab', 'media', 'writing', 'games', 'path'];
+            tabs.forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).classList.remove('text-cyan-400');
+                document.getElementById(`nav-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabId}`).classList.remove('text-slate-400');
+            document.getElementById(`nav-${tabId}`).classList.add('text-cyan-400');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* Home View Checklist & Challenge */
+        function renderDailyPlan() {
+            const tasks = [
+                { id: 't1', text: '10 min – Vocabulario Básico', xp: 15 },
+                { id: 't2', text: '10 min – Listening & Song Lyrics', xp: 15 },
+                { id: 't3', text: '10 min – Lección Gramatical', xp: 15 }
+            ];
+
+            const container = document.getElementById('daily-plan-list');
+            container.innerHTML = '';
+            tasks.forEach(task => {
+                const isDone = appState.dailyTasksCompleted.includes(task.id);
+                const item = document.createElement('label');
+                item.className = `flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer ${isDone ? 'bg-slate-800/40 border-slate-800 opacity-60' : 'bg-slate-800/80 border-slate-700/60 hover:bg-slate-800'}`;
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" ${isDone ? 'checked disabled' : ''} onchange="toggleDailyTask('${task.id}', ${task.xp})" class="w-4 h-4 text-cyan-500 rounded bg-slate-900 border-slate-700">
+                        <span class="text-xs font-semibold ${isDone ? 'line-through text-slate-500' : 'text-slate-200'}">${task.text}</span>
+                    </div>
+                    <span class="text-[10px] font-extrabold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">+${task.xp} XP</span>
+                `;
+                container.appendChild(item);
+            });
+
+            // Daily Challenge Setup
+            const dcBox = document.getElementById('dc-options');
+            dcBox.innerHTML = `
+                <button onclick="solveDailyChallenge(false)" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-bold text-white transition-all">A) goes</button>
+                <button onclick="solveDailyChallenge(true)" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-bold text-white transition-all">B) go</button>
+                <button onclick="solveDailyChallenge(false)" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-bold text-white transition-all">C) going</button>
+            `;
+        }
+
+        function toggleDailyTask(taskId, xp) {
+            if (!appState.dailyTasksCompleted.includes(taskId)) {
+                appState.dailyTasksCompleted.push(taskId);
+                appState.xp += xp;
+                saveState();
+                renderDailyPlan();
+                showToast(`¡Tarea completada! +${xp} XP`, 'fa-solid fa-circle-check text-cyan-400');
+            }
+        }
+
+        function solveDailyChallenge(isCorrect) {
+            if (isCorrect) {
+                appState.xp += 20;
+                appState.coins += 10;
+                saveState();
+                showToast('¡Reto diario completado! +20 XP', 'fa-solid fa-trophy text-amber-400');
+            } else {
+                showToast('Respuesta incorrecta. ¡Inténtalo de nuevo!', 'fa-solid fa-xmark text-rose-400');
+            }
+        }
+
+        /* Vocabulary Engine & Speech Synthesis */
+        let bookmarksOnlyFilter = false;
+
+        function renderVocabCards(category = 'ALL') {
+            const grid = document.getElementById('vocab-cards-grid');
+            grid.innerHTML = '';
+
+            let list = vocabDatabase;
+            if (category !== 'ALL') {
+                list = list.filter(v => v.cat === category);
+            }
+            if (bookmarksOnlyFilter) {
+                list = list.filter(v => appState.bookmarks.includes(v.id));
+            }
+
+            if (list.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-8 text-slate-500 text-xs font-medium">No hay palabras disponibles en este filtro.</div>`;
+                return;
+            }
+
+            list.forEach(item => {
+                const isBookmarked = appState.bookmarks.includes(item.id);
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-sm border border-cyan-500/20"><i class="fa-solid ${item.icon}"></i></span>
+                            <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-extrabold uppercase">${item.cat}</span>
+                        </div>
+                        <h4 class="font-extrabold text-base text-white">${item.word}</h4>
+                        <p class="text-xs text-cyan-400 font-medium mb-2">${item.trans}</p>
+                        <p class="text-xs text-slate-400 italic">"${item.example}"</p>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="speakText('${item.word}')" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white rounded-xl transition-all flex items-center justify-center gap-1.5 border border-slate-700">
+                            <i class="fa-solid fa-volume-high text-cyan-400"></i> Audio
+                        </button>
+                        <button onclick="toggleBookmark(${item.id})" class="px-3 py-2 ${isBookmarked ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'} rounded-xl transition-all">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterVocabCategory(cat) {
+            renderVocabCards(cat);
+        }
+
+        function toggleBookmarksOnly() {
+            bookmarksOnlyFilter = !bookmarksOnlyFilter;
+            const btn = document.getElementById('btn-bookmark-filter');
+            btn.classList.toggle('bg-amber-500/20', bookmarksOnlyFilter);
+            renderVocabCards(document.getElementById('vocab-category-filter').value);
+        }
+
+        function toggleBookmark(id) {
+            if (appState.bookmarks.includes(id)) {
+                appState.bookmarks = appState.bookmarks.filter(b => b !== id);
+                showToast('Eliminado de marcadores.', 'fa-solid fa-bookmark text-slate-400');
+            } else {
+                appState.bookmarks.push(id);
+                showToast('Guardado en marcadores.', 'fa-solid fa-bookmark text-amber-400');
+            }
+            saveState();
+            renderVocabCards(document.getElementById('vocab-category-filter').value);
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast('Lector de voz no compatible en este navegador.', 'fa-solid fa-volume-xmark text-rose-400');
+            }
+        }
+
+        /* Media Subtabs & Voice Interaction */
+        function switchMediaSubTab(sub) {
+            ['songs', 'videos', 'dialogues'].forEach(s => {
+                document.getElementById(`media-subtab-${s}`).classList.add('hidden');
+                document.getElementById(`subbtn-${s}`).classList.remove('bg-cyan-500', 'text-slate-950');
+                document.getElementById(`subbtn-${s}`).classList.add('bg-slate-900', 'text-slate-400');
+            });
+            document.getElementById(`media-subtab-${sub}`).classList.remove('hidden');
+            document.getElementById(`subbtn-${sub}`).classList.remove('bg-slate-900', 'text-slate-400');
+            document.getElementById(`subbtn-${sub}`).classList.add('bg-cyan-500', 'text-slate-950');
+        }
+
+        function renderMediaLists() {
+            // Render Songs
+            const songContainer = document.getElementById('songs-list-container');
+            songContainer.innerHTML = '';
+            songsDatabase.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <span class="text-[10px] bg-cyan-500/20 text-cyan-300 font-extrabold px-2 py-0.5 rounded border border-cyan-500/30">Nivel ${s.level}</span>
+                        <h4 class="font-extrabold text-sm text-white mt-2">"${s.title}"</h4>
+                        <p class="text-xs text-slate-400 mb-2">${s.artist}</p>
+                    </div>
+                    <button onclick="openSongLyricsModal('${s.title}', '${s.lyrics.join('\n')}')" class="mt-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-400 rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-music"></i> Ver Letra y Practicar
+                    </button>
+                `;
+                songContainer.appendChild(card);
+            });
+
+            // Render Videos
+            const videoContainer = document.getElementById('videos-list-container');
+            videoContainer.innerHTML = '';
+            videosDatabase.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <div class="w-full h-28 bg-slate-800 rounded-xl mb-3 flex items-center justify-center text-cyan-400 text-3xl relative overflow-hidden border border-slate-700/50">
+                            <i class="fa-solid fa-circle-play"></i>
+                        </div>
+                        <span class="text-[10px] bg-cyan-500/20 text-cyan-300 font-extrabold px-2 py-0.5 rounded border border-cyan-500/30">Nivel ${v.level}</span>
+                        <h4 class="font-extrabold text-sm text-white mt-1">${v.title}</h4>
+                        <p class="text-xs text-slate-400 mt-1">${v.desc}</p>
+                    </div>
+                    <button onclick="openExerciseModal('Video Educativo', '${v.title}: ${v.desc}')" class="mt-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white rounded-xl border border-slate-700 transition-all">Reproducir Video</button>
+                `;
+                videoContainer.appendChild(card);
+            });
+        }
+
+        function triggerMicRecording() {
+            const feedback = document.getElementById('mic-feedback');
+            feedback.classList.remove('hidden');
+            setTimeout(() => {
+                feedback.classList.add('hidden');
+                appState.xp += 15;
+                saveState();
+                showToast('¡Respuesta de voz registrada! +15 XP', 'fa-solid fa-microphone text-cyan-400');
+            }, 2500);
+        }
+
+        /* Grammar & Reading Renderer */
+        function renderGrammarModules() {
+            const container = document.getElementById('grammar-modules-container');
+            container.innerHTML = '';
+            grammarDatabase.forEach(g => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <span class="text-[10px] bg-cyan-500/20 text-cyan-300 font-extrabold px-2 py-0.5 rounded border border-cyan-500/30">Grammar ${g.level}</span>
+                        <h4 class="font-extrabold text-base text-white mt-2">${g.title}</h4>
+                        <p class="text-xs text-slate-400 mt-1 mb-2">${g.topic}</p>
+                    </div>
+                    <button onclick="openExerciseModal('Lección de Gramática: ${g.title}', '${g.content}')" class="mt-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition-all">Estudiar Tema</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        /* Mini Games Playground Engine */
+        function launchMiniGame(type) {
+            const playground = document.getElementById('game-playground');
+            const content = document.getElementById('game-playground-content');
+            playground.classList.remove('hidden');
+            playground.scrollIntoView({ behavior: 'smooth' });
+
+            if (type === 'scramble') {
+                content.innerHTML = `
+                    <h3 class="font-black text-lg text-white mb-2">🔤 Word Scramble</h3>
+                    <p class="text-xs text-slate-300 mb-4">Ordena las letras para formar la palabra correcta en inglés:</p>
+                    <div class="text-2xl font-black tracking-widest text-cyan-400 text-center bg-slate-800/80 py-3 rounded-2xl mb-4 border border-slate-700">P-P-A-L-E</div>
+                    <input type="text" id="game-scramble-input" placeholder="Tu respuesta..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white mb-3 focus:outline-none focus:border-cyan-500">
+                    <button onclick="verifyGameScramble()" class="w-full py-3 bg-cyan-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg">Comprobar Palabra</button>
+                `;
+            } else if (type === 'quiz') {
+                content.innerHTML = `
+                    <h3 class="font-black text-lg text-white mb-2">⚡ Quick Quiz</h3>
+                    <p class="text-xs text-slate-300 mb-4">¿Cuál es el significado de "House"?</p>
+                    <div class="space-y-2">
+                        <button onclick="finishMiniGame(false)" class="w-full p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-white text-left">Escuela</button>
+                        <button onclick="finishMiniGame(true)" class="w-full p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-white text-left">Casa</button>
+                        <button onclick="finishMiniGame(false)" class="w-full p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-white text-left">Trabajo</button>
+                    </div>
+                `;
+            } else if (type === 'memory') {
+                content.innerHTML = `
+                    <h3 class="font-black text-lg text-white mb-2">🧠 Memory Game</h3>
+                    <p class="text-xs text-slate-300 mb-4">Selecciona la pareja que corresponda a: <strong>Dog</strong></p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="finishMiniGame(true)" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-xs font-black text-cyan-400 text-center border border-slate-700">Perro</button>
+                        <button onclick="finishMiniGame(false)" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-xs font-black text-cyan-400 text-center border border-slate-700">Gato</button>
+                    </div>
+                `;
+            }
+        }
+
+        function verifyGameScramble() {
+            const input = document.getElementById('game-scramble-input').value.trim().toLowerCase();
+            if (input === 'apple') {
+                finishMiniGame(true);
+            } else {
+                showToast('Respuesta incorrecta. Inténtalo otra vez.', 'fa-solid fa-xmark text-rose-400');
+            }
+        }
+
+        function finishMiniGame(success) {
+            closeGamePlayground();
+            if (success) {
+                appState.xp += 25;
+                appState.coins += 15;
+                saveState();
+                showToast('¡Juego completado con éxito! +25 XP', 'fa-solid fa-trophy text-amber-400');
+            } else {
+                showToast('Casi lo logras. ¡Sigue practicando!', 'fa-solid fa-rotate text-cyan-400');
+            }
+        }
+
+        function closeGamePlayground() {
+            document.getElementById('game-playground').classList.add('hidden');
+        }
+
+        /* Duolingo-style Visual Learning Path Engine */
+        const pathData = {
+            'A1': [
+                { id: 'A1-U1', title: 'Unit 1: Saludos y Presentaciones', icon: 'fa-hand-wave' },
+                { id: 'A1-U2', title: 'Unit 2: La Familia y Amigos', icon: 'fa-people-group' },
+                { id: 'A1-U3', title: 'Unit 3: Números y Objetos', icon: 'fa-cubes' }
+            ],
+            'A2': [
+                { id: 'A2-U1', title: 'Unit 1: Rutinas Diarias', icon: 'fa-clock' },
+                { id: 'A2-U2', title: 'Unit 2: Compras y Ciudad', icon: 'fa-store' }
+            ],
+            'B1': [
+                { id: 'B1-U1', title: 'Unit 1: Experiencias de Viaje', icon: 'fa-plane-departure' }
+            ],
+            'B2': [
+                { id: 'B2-U1', title: 'Unit 1: Debates & Cultura', icon: 'fa-comments' }
+            ]
+        };
+
+        function renderPathForLevel(lvl) {
+            ['A1', 'A2', 'B1', 'B2'].forEach(l => {
+                const btn = document.getElementById(`path-level-btn-${l}`);
+                if (l === lvl) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-extrabold bg-cyan-500 text-slate-950 transition-all";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-700 transition-all";
+                }
+            });
+
+            const container = document.getElementById('path-nodes-container');
+            container.innerHTML = '';
+            const units = pathData[lvl] || [];
+
+            units.forEach((unit, idx) => {
+                const isCompleted = appState.completedNodes.includes(unit.id);
+                const isActive = !isCompleted && (idx === 0 || appState.completedNodes.includes(units[idx - 1]?.id));
+
+                const node = document.createElement('div');
+                node.className = 'flex flex-col items-center text-center max-w-xs';
+                node.innerHTML = `
+                    <button onclick="completePathNode('${unit.id}')" ${!isCompleted && !isActive ? 'disabled' : ''} class="w-16 h-16 rounded-full flex items-center justify-center text-xl font-black transition-all shadow-xl ${isCompleted ? 'bg-emerald-500 text-slate-950' : isActive ? 'bg-cyan-500 text-slate-950 active-path-node' : 'bg-slate-800 text-slate-600 border border-slate-700 cursor-not-allowed'}">
+                        <i class="fa-solid ${isCompleted ? 'fa-check' : isActive ? unit.icon : 'fa-lock'}"></i>
+                    </button>
+                    <div class="mt-2">
+                        <h4 class="font-bold text-xs text-white">${unit.title}</h4>
+                        <span class="text-[10px] text-slate-400">${isCompleted ? 'Completado' : isActive ? 'Disponible (+30 XP)' : 'Bloqueado'}</span>
+                    </div>
+                `;
+                container.appendChild(node);
+            });
+        }
+
+        function completePathNode(nodeId) {
+            if (!appState.completedNodes.includes(nodeId)) {
+                appState.completedNodes.push(nodeId);
+                appState.xp += 30;
+                saveState();
+                renderPathForLevel(appState.level);
+                showToast('¡Unidad completada! +30 XP', 'fa-solid fa-circle-check text-cyan-400');
+            } else {
+                showToast('Unidad ya repasadada.', 'fa-solid fa-info-circle text-cyan-400');
+            }
+        }
+
+        /* Admin Mode Form Handler */
+        function toggleAdminPanel() {
+            const panel = document.getElementById('admin-panel');
+            panel.classList.toggle('hidden');
+            panel.classList.toggle('flex');
+        }
+
+        function handleAdminAddVocab(e) {
+            e.preventDefault();
+            const word = document.getElementById('admin-word').value.trim();
+            const trans = document.getElementById('admin-translation').value.trim();
+            const cat = document.getElementById('admin-category').value;
+            const level = document.getElementById('admin-level').value;
+            const example = document.getElementById('admin-example').value.trim();
+
+            const newObj = {
+                id: Date.now(),
+                word,
+                trans,
+                cat,
+                level,
+                example,
+                icon: "fa-font"
+            };
+
+            vocabDatabase.unshift(newObj);
+            renderVocabCards('ALL');
+            toggleAdminPanel();
+            document.getElementById('admin-add-vocab-form').reset();
+            showToast('¡Nueva palabra añadida correctamente!', 'fa-solid fa-plus text-cyan-400');
+        }
+
+        /* Generic Modals */
+        function openExerciseModal(title, text) {
+            document.getElementById('ex-modal-title').innerText = title;
+            document.getElementById('ex-modal-body').innerHTML = `<p class="leading-relaxed text-slate-200">${text}</p>`;
+            document.getElementById('exercise-modal').classList.remove('hidden');
+            document.getElementById('exercise-modal').classList.add('flex');
+        }
+
+        function openSongLyricsModal(title, lyrics) {
+            document.getElementById('ex-modal-title').innerText = `Canción: ${title}`;
+            document.getElementById('ex-modal-body').innerHTML = `
+                <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 whitespace-pre-line italic text-cyan-300">
+                    ${lyrics}
+                </div>
+            `;
+            document.getElementById('exercise-modal').classList.remove('hidden');
+            document.getElementById('exercise-modal').classList.add('flex');
+        }
+
+        function closeExerciseModal() {
+            document.getElementById('exercise-modal').classList.add('hidden');
+            document.getElementById('exercise-modal').classList.remove('flex');
+        }
+
+        function showToast(title, iconClass) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-icon').className = iconClass;
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 3000);
+        }
+
+        /* Initial Load */
+        window.onload = function() {
+            updateHeaderStats();
+            renderDailyPlan();
+            renderVocabCards();
+            renderMediaLists();
+            renderGrammarModules();
+            renderPathForLevel(appState.level);
+        };
+    </script>
+</body>
+</html>
